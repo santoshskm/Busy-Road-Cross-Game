@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Bungee", cursive;
+}
+
+body {
+  @apply bg-zinc-950 text-zinc-100 overflow-hidden;
+}
+
+canvas {
+  @apply fixed inset-0 z-0 touch-none;
+}
