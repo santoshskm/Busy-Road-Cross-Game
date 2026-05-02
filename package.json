@@ -5,10 +5,10 @@
   "scripts": {
     "build": "vite build",
     "clean": "rm -rf dist",
-    "dev": "vite --port=3000 --host=0.0.0.0",
+    "dev": "tsx server.ts",
     "lint": "tsc --noEmit",
     "preview": "vite preview",
-    "start": "node server.cjs"
+    "start": "node server.ts"
   },
   "dependencies": {
     "@google/genai": "^1.29.0",

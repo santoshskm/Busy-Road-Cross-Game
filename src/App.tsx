@@ -23,6 +23,7 @@ const App = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [gameState, setGameState] = useState<'IDLE' | 'PLAYING' | 'WON' | 'LOST'>('IDLE');
   const [score, setScore] = useState(0);
+  const [highScores, setHighScores] = useState<any[]>([]);
   
   // Three.js Refs
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -168,11 +169,13 @@ const App = () => {
           }
         });
 
-        // Win Condition
+  // Win Condition
         const winThreshold = (LANES_COUNT * LANE_WIDTH) / 2 - 2;
         if (player.position.z > winThreshold) {
           setGameState('WON');
-          setScore((prev: number) => prev + 1);
+          const newScore = score + 1;
+          setScore(newScore);
+          submitScore(newScore);
         }
       }
 
@@ -255,6 +258,32 @@ const App = () => {
     playerRef.current.position.set(0, 0.9, -(LANES_COUNT * LANE_WIDTH) / 2 + 2);
     setGameState('PLAYING');
     spawnVehicles();
+    fetchScores();
+  };
+
+  const fetchScores = async () => {
+    try {
+      const res = await fetch('/api/scores');
+      if (res.ok) {
+        const data = await res.json();
+        setHighScores(data);
+      }
+    } catch (e) {
+      console.error("Failed to fetch scores", e);
+    }
+  };
+
+  const submitScore = async (finalScore: number) => {
+    try {
+      await fetch('/api/scores', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ player_name: 'Hero', score: finalScore })
+      });
+      fetchScores();
+    } catch (e) {
+      console.error("Failed to submit score", e);
+    }
   };
 
   const resetGame = () => {
@@ -354,6 +383,17 @@ const App = () => {
                   NEXT LEVEL
                 </button>
                 <div className="text-zinc-500 text-sm mt-4 font-mono">Current Streak: {score}</div>
+                {highScores.length > 0 && (
+                  <div className="mt-4 p-4 bg-black/40 rounded-xl text-left">
+                    <div className="text-[10px] text-zinc-500 uppercase font-bold mb-2">Internal Top 5</div>
+                    {highScores.map((s, idx) => (
+                      <div key={idx} className="flex justify-between text-xs font-mono text-zinc-400">
+                        <span>{s.player_name}</span>
+                        <span>{s.score}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </motion.div>
